@@ -19,6 +19,9 @@ mapgilbert10 <- get_map(location = c(lon = mean(crimeData$Longitude, na.rm=TRUE)
 mapgilbert12 <- get_map(location = c(lon = mean(crimeData$Longitude, na.rm=TRUE), lat = mean(crimeData$Latitude, na.rm=TRUE)), zoom = 12,
                         maptype = "terrain", scale = 2)
 
+mapgilbert11 <- get_map(location = c(lon = mean(crimeData$Longitude, na.rm=TRUE), lat = mean(crimeData$Latitude, na.rm=TRUE)), zoom = 11,
+                        maptype = "terrain", scale = 2)
+
 loMin <- min(crimeData$Longitude)
 loMax <- max(crimeData$Longitude)
 laMin <- min(crimeData$Latitude)
@@ -41,6 +44,22 @@ crimeTypes <- levels(crimeData$Primary.Type)
 crimeTypes
 
 accomodationCrimes <- subset(crimeData, Primary.Type %in% c(crimeTypes[2], crimeTypes[4], crimeTypes[6]))
+
 ggmap(mapgilbert12) +
   geom_point(data = accomodationCrimes, aes(x = Longitude, y = Latitude, alpha = 0.8, color = Primary.Type), size = 1) +
+  guides(fill=FALSE, alpha=FALSE, size=FALSE)
+
+results <- kmeans(accomodationCrimes[, c('Longitude', 'Latitude')], 6, 
+                  algorithm = c("Hartigan-Wong", "Lloyd", "Forgy", "MacQueen"))
+results
+
+results <- kmeans(accomodationCrimes[, c('Longitude', 'Latitude')], 20, 
+                  algorithm = c("Hartigan-Wong", "Lloyd", "Forgy", "MacQueen"))
+centers <- as.data.frame(results$centers)
+
+colours <- factor(results$cluster + 1)
+
+ggmap(mapgilbert11) +
+  geom_point(data = accomodationCrimes, aes(x = Longitude, y = Latitude, alpha = 0.8, color = colours), size = 1) +
+  geom_point(data = centers, aes(x = Longitude, y = Latitude, alpha = 0.8), size = 1.5) +
   guides(fill=FALSE, alpha=FALSE, size=FALSE)
