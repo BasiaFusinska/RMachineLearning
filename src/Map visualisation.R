@@ -55,11 +55,25 @@ results
 
 results <- kmeans(accomodationCrimes[, c('Longitude', 'Latitude')], 20, 
                   algorithm = c("Hartigan-Wong", "Lloyd", "Forgy", "MacQueen"))
+
+ac1 <- accomodationCrimes[!is.na(accomodationCrimes$Primary.Type),]
+ac1$Primary.Type <- as.double(ac1$Primary.Type)
+ac1$Domestic <- as.double(ac1$Domestic)
+ac1$Arrest <- as.double(ac1$Arrest)
+
+results <- kmeans(ac1[, c('Longitude', 'Latitude', 'Primary.Type')], 10, 
+                  algorithm = c("Hartigan-Wong", "Lloyd", "Forgy", "MacQueen"))
+
 centers <- as.data.frame(results$centers)
 
 colours <- factor(results$cluster + 1)
 
 ggmap(mapgilbert11) +
   geom_point(data = accomodationCrimes, aes(x = Longitude, y = Latitude, alpha = 0.8, color = colours), size = 1) +
+  geom_point(data = centers, aes(x = Longitude, y = Latitude, alpha = 0.8), size = 1.5) +
+  guides(fill=FALSE, alpha=FALSE, size=FALSE)
+
+ggmap(mapgilbert11) +
+  geom_point(data = ac1, aes(x = Longitude, y = Latitude, alpha = 0.8, color = colours), size = 1) +
   geom_point(data = centers, aes(x = Longitude, y = Latitude, alpha = 0.8), size = 1.5) +
   guides(fill=FALSE, alpha=FALSE, size=FALSE)
