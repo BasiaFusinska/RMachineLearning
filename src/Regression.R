@@ -16,6 +16,7 @@ xyData
 cor(xyData$x,xyData$y)
 
 # Using Linear regression
+
 fit <- lm(y ~ x, data=xyData)
 fit
 attributes(fit)

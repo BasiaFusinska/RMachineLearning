@@ -1,3 +1,5 @@
+library('Metrics')
+
 # Relative Squared Error
 rse <- function (actual, predicted)
 {
@@ -48,12 +50,12 @@ avg_accuracy <- function(sumAll) {
 
 #Micro-averaged precision
 mi_precision <- function(sumAll) {
-  (diag(s) / apply(s,1, sum))[1]
+  (diag(sumAll) / apply(sumAll,1, sum))[1]
 }
 
 #Micro-averaged recall
 mi_recall <- function(sumAll) {
-  (diag(s) / apply(s,2, sum))[1]
+  (diag(sumAll) / apply(sumAll,2, sum))[1]
 }
 
 
