@@ -24,7 +24,7 @@ carsData <- data.frame(original[,c(2:6, 1)])
 cor(carsData, method="pearson")
 
 # Linear regression
-fit <- lm(mpg~cyl+disp+hp+wt+acc, data=carsData)
+fit <- lm(mpg ~ cyl + disp + hp + wt + acc, data=carsData)
 fit
 
 summary(fit)
@@ -45,5 +45,31 @@ rmse(carsData$mpg, predicted)
 rae(carsData$mpg, predicted)
 # Relative Squared Error
 rse(carsData$mpg, predicted)
-# Coefficient of Determination
+# Coefficient of Determination (R^2)
 1 - rse(carsData$mpg, predicted)
+
+# Train - test split
+smp_size <- floor(0.75 * nrow(carsData))
+
+## set the seed to make your partition reproductible
+set.seed(123)
+train_ind <- sample(seq_len(nrow(carsData)), size = smp_size)
+
+train <- carsData[train_ind, ]
+test <- carsData[-train_ind, ]
+
+fit <- lm(mpg ~ cyl + disp + hp + wt + acc, data=train)
+fit
+
+predicted <- predict(fit, test)
+
+# Mean Absolute Error
+mae(test$mpg, predicted)
+# Root Mean Squared Error
+rmse(test$mpg, predicted)
+# Relative Absolute Error
+rae(test$mpg, predicted)
+# Relative Squared Error
+rse(test$mpg, predicted)
+# Coefficient of Determination
+1 - rse(test$mpg, predicted)
