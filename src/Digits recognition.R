@@ -4,63 +4,24 @@ datasetsDir <- '../Data/Handwritten digits'
 trainingFile <- paste(datasetsDir, 'optdigits.tra', sep = '/')
 testFile <- paste(datasetsDir, 'optdigits.tes', sep = '/')
 
+# Read training and test data
 trainingSet <- read.csv(trainingFile, header = FALSE)
 testSet <- read.csv(testFile, header = FALSE)
 
+# Set labels as factor
+trainingSet$V65 <- factor(trainingSet$V65)
+testSet$V65 <- factor(testSet$V65) 
+
 # Data classification
-library(class)
-knnModel <- knn(trainingSet[,1:64], testSet[,1:64], trainingSet[,65], k = 3, prob = TRUE)
+library(caret)
 
-# Metrics
-xtab <- table(knnModel, testSet[,65])
+# Use knn algorithm
+knn.fit <- knn3(V65~., data=trainingSet, k=5)
+knn.fit
+summary(knn.fit)
 
-library(caret) 
-cMatrix <- confusionMatrix(xtab)
-cMatrix
+pred.test <- predict(knn.fit, testSet[,1:64], type="class")
 
-# Overall Accuracy
-cMatrix$overall['Accuracy']
-
-# Macro-averaged precision
-ma_aprecision(cMatrix)
-
-#Macro-averaged recall
-ma_arecall(cMatrix)
-
-sum_All <- sumAll(cMatrix)
-sum_All
-
-#Average accuracy
-avg_accuracy(sum_All)
-
-#Micro-averaged precision/recall
-mi_precision(sum_All)
-mi_recall(sum_All)
-
-# Confusion Matrix Visualisation
-confusion <- as.data.frame(cMatrix$table)
-confusion
-
-colnames(confusion) <- c('ActualClass', 'PredictedClass', 'Freq')
-head(confusion)
-
-confusion$fill <- 'TN'
-confusion$fill[confusion$Freq > 0] <- 'FP'
-confusion$fill[confusion$ActualClass == confusion$PredictedClass] <- 'TP'
-
-a <- aggregate(Freq ~ ActualClass, data = confusion, sum)
-a
-
-confusion$sum <- rep(a$Freq, 10)
-
-confusion$prob <- round(confusion$Freq/confusion$sum*100, digits=1)
-confusion$probText <- paste(confusion$prob, " %")
-confusion$probText[confusion$prob == 0.0] <- ''
-
-library(ggplot2)
-
-plot <- ggplot(confusion)
-plot + geom_tile(aes(x=ActualClass, y=PredictedClass, fill=fill)) + geom_text(aes(x=ActualClass, y=PredictedClass,label=probText)) +
-  scale_fill_manual(values=c("#999999", "#FFFFFF", "#56B4E9")) +
-  scale_x_discrete(name="Actual Class") + scale_y_discrete(name="Predicted Class") + 
-  labs(fill="Normalized\nFrequency")
+cmatrix <- confusionMatrix(pred.test, testSet[,65])
+cmatrix
+confusion.matrix.visual(cmatrix$table, 10)
